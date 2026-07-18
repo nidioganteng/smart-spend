@@ -70,13 +70,17 @@
                 Budget Plan
             </a>
             <p class="px-3 pt-4 pb-1 text-xs font-semibold uppercase tracking-widest text-gray-500">Transaksi</p>
-            <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
+            <a href="{{ route('transaction.create') }}"
+               class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                      {{ request()->routeIs('transaction.create') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' }}">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                 </svg>
                 Tap NFC / Scan QR
             </a>
-            <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
+            <a href="{{ route('transaction.index') }}"
+               class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                      {{ request()->routeIs('transaction.index') || request()->routeIs('transaction.show') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' }}">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                 </svg>
@@ -95,7 +99,9 @@
                 </svg>
                 Review Budget Plan
             </a>
-            <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
+            <a href="{{ route('transaction.pending') }}"
+               class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                      {{ request()->routeIs('transaction.pending') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' }}">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>

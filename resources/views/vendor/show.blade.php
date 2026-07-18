@@ -50,6 +50,20 @@
                         Berlaku hingga <span class="font-medium text-gray-700">{{ $vendor->qr_expires_at->format('d M Y, H:i') }}</span>
                     </p>
                 </div>
+
+                {{-- Token untuk simulasi form transaksi --}}
+                <div class="space-y-1">
+                    <p class="text-xs font-medium text-gray-500">Token QR (copy untuk simulasi transaksi):</p>
+                    <div class="relative">
+                        <textarea id="qr-token-text" rows="3" readonly
+                                  class="w-full border border-gray-200 bg-gray-50 rounded-lg px-3 py-2 text-xs font-mono text-gray-600 resize-none focus:outline-none">{{ $vendor->qr_token }}</textarea>
+                        <button onclick="navigator.clipboard.writeText(document.getElementById('qr-token-text').value).then(() => { this.textContent = 'Tersalin!'; setTimeout(() => this.textContent = 'Copy', 2000); })"
+                                class="absolute top-2 right-2 text-xs px-2 py-1 bg-white border border-gray-300 rounded text-gray-600 hover:bg-gray-100 transition-colors">
+                            Copy
+                        </button>
+                    </div>
+                </div>
+
                 <form method="POST" action="{{ route('vendor.generate-qr', $vendor) }}">
                     @csrf
                     <button type="submit"
