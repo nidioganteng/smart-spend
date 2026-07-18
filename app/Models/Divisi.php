@@ -26,4 +26,21 @@ class Divisi extends Model
     {
         return !is_null($this->rfid_uid);
     }
+
+    public function wallet()
+    {
+        return $this->hasOne(Wallet::class);
+    }
+
+    public function budgetPlans()
+    {
+        return $this->hasMany(BudgetPlan::class);
+    }
+
+    protected static function booted(): void
+    {
+        static::created(function (Divisi $divisi) {
+            $divisi->wallet()->create(['balance' => 0]);
+        });
+    }
 }
