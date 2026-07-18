@@ -1,3 +1,15 @@
+@php
+    $pendingTrxCount = Auth::user()->isFinanceStaff()
+        ? \App\Models\Transaction::where('status', 'pending')->count()
+        : 0;
+    $pendingBpFinanceCount = Auth::user()->isFinanceStaff()
+        ? \App\Models\BudgetPlan::where('status', 'pending_finance')->count()
+        : 0;
+    $pendingBpLeaderCount = Auth::user()->isLeader()
+        ? \App\Models\BudgetPlan::where('status', 'pending_leader')->count()
+        : 0;
+@endphp
+
 <aside class="fixed inset-y-0 left-0 w-64 bg-gray-900 text-white flex flex-col z-50">
 
     {{-- Logo --}}
@@ -105,12 +117,15 @@
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                Transaksi Pending
+                <span class="flex-1">Transaksi Pending</span>
+                @if($pendingTrxCount > 0)
+                    <span class="text-xs font-bold bg-red-500 text-white px-1.5 py-0.5 rounded-full">{{ $pendingTrxCount }}</span>
+                @endif
             </a>
             <p class="px-3 pt-4 pb-1 text-xs font-semibold uppercase tracking-widest text-gray-500">Monitoring</p>
-            <a href="{{ route('wallet.index') }}"
+            <a href="{{ route('audit-log.index') }}"
                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                      {{ request()->routeIs('wallet.*') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' }}">
+                      {{ request()->routeIs('audit-log.*') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' }}">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
                 </svg>
@@ -127,7 +142,10 @@
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                Approval Budget Plan
+                <span class="flex-1">Approval Budget Plan</span>
+                @if($pendingBpLeaderCount > 0)
+                    <span class="text-xs font-bold bg-red-500 text-white px-1.5 py-0.5 rounded-full">{{ $pendingBpLeaderCount }}</span>
+                @endif
             </a>
             <p class="px-3 pt-4 pb-1 text-xs font-semibold uppercase tracking-widest text-gray-500">Monitoring</p>
             <a href="{{ route('wallet.index') }}"

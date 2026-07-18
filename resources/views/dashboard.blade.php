@@ -5,9 +5,7 @@
 
         {{-- Welcome Card --}}
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <h2 class="text-xl font-semibold text-gray-800 mb-1">
-                Selamat datang, {{ Auth::user()->name }}!
-            </h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-1">Selamat datang, {{ Auth::user()->name }}!</h2>
             <p class="text-gray-500 text-sm">
                 Anda login sebagai
                 <span class="font-medium text-blue-600">
@@ -21,30 +19,54 @@
             </p>
         </div>
 
-        {{-- Placeholder Stats --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
-                <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">Budget Disetujui</p>
-                <p class="text-2xl font-bold text-gray-800">—</p>
+        {{-- ADMIN --}}
+        @if(Auth::user()->isAdmin())
+            <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                @include('dashboard._stat', ['label' => 'Total Divisi', 'value' => $data['total_divisi'], 'color' => 'blue'])
+                @include('dashboard._stat', ['label' => 'Total Vendor', 'value' => $data['total_vendor'], 'color' => 'blue'])
+                @include('dashboard._stat', ['label' => 'Total Saldo Wallet', 'value' => 'Rp ' . number_format($data['total_wallet'], 0, ',', '.'), 'color' => 'green'])
+                @include('dashboard._stat', ['label' => 'Transaksi Approved', 'value' => $data['trx_approved'], 'color' => 'green'])
+                @include('dashboard._stat', ['label' => 'Transaksi Pending', 'value' => $data['trx_pending'], 'color' => 'yellow'])
+                @include('dashboard._stat', ['label' => 'Transaksi Rejected', 'value' => $data['trx_rejected'], 'color' => 'red'])
             </div>
-            <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
-                <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">Realisasi</p>
-                <p class="text-2xl font-bold text-gray-800">—</p>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
-                <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">Saldo Wallet</p>
-                <p class="text-2xl font-bold text-gray-800">—</p>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
-                <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">Transaksi Pending</p>
-                <p class="text-2xl font-bold text-gray-800">—</p>
-            </div>
-        </div>
+            @include('dashboard._recent-trx', ['transactions' => $data['recent_trx']])
+        @endif
 
-        {{-- Coming Soon Notice --}}
-        <div class="bg-blue-50 border border-blue-200 rounded-xl p-5 text-sm text-blue-700">
-            Fitur lengkap sedang dalam pengembangan. Milestone 1 selesai — autentikasi dan RBAC aktif.
-        </div>
+        {{-- HEAD OF DIVISION --}}
+        @if(Auth::user()->isHeadDivision())
+            <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                @include('dashboard._stat', ['label' => 'BP Draft', 'value' => $data['bp_draft'], 'color' => 'gray'])
+                @include('dashboard._stat', ['label' => 'BP Menunggu Review', 'value' => $data['bp_pending'], 'color' => 'yellow'])
+                @include('dashboard._stat', ['label' => 'BP Disetujui', 'value' => $data['bp_approved'], 'color' => 'green'])
+                @include('dashboard._stat', ['label' => 'Total Budget', 'value' => 'Rp ' . number_format($data['total_budget'], 0, ',', '.'), 'color' => 'blue'])
+                @include('dashboard._stat', ['label' => 'Terealisasi', 'value' => 'Rp ' . number_format($data['total_realized'], 0, ',', '.'), 'color' => 'green'])
+                @include('dashboard._stat', ['label' => 'Sisa Anggaran', 'value' => 'Rp ' . number_format($data['total_budget'] - $data['total_realized'], 0, ',', '.'), 'color' => 'blue'])
+            </div>
+            @include('dashboard._recent-trx', ['transactions' => $data['recent_trx']])
+        @endif
+
+        {{-- FINANCE STAFF --}}
+        @if(Auth::user()->isFinanceStaff())
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                @include('dashboard._stat', ['label' => 'BP Menunggu Review', 'value' => $data['bp_pending_finance'], 'color' => 'yellow'])
+                @include('dashboard._stat', ['label' => 'Transaksi Pending', 'value' => $data['trx_pending'], 'color' => 'yellow'])
+                @include('dashboard._stat', ['label' => 'Transaksi Approved Hari Ini', 'value' => $data['trx_approved_today'], 'color' => 'green'])
+                @include('dashboard._stat', ['label' => 'Total Saldo Wallet', 'value' => 'Rp ' . number_format($data['total_wallet'], 0, ',', '.'), 'color' => 'blue'])
+            </div>
+            @include('dashboard._recent-trx', ['transactions' => $data['recent_trx']])
+        @endif
+
+        {{-- LEADER --}}
+        @if(Auth::user()->isLeader())
+            <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                @include('dashboard._stat', ['label' => 'BP Menunggu Approval', 'value' => $data['bp_pending_leader'], 'color' => 'yellow'])
+                @include('dashboard._stat', ['label' => 'BP Disetujui', 'value' => $data['bp_approved_total'], 'color' => 'green'])
+                @include('dashboard._stat', ['label' => 'Total Budget Disetujui', 'value' => 'Rp ' . number_format($data['total_budget'], 0, ',', '.'), 'color' => 'blue'])
+                @include('dashboard._stat', ['label' => 'Total Terealisasi', 'value' => 'Rp ' . number_format($data['total_realized'], 0, ',', '.'), 'color' => 'green'])
+                @include('dashboard._stat', ['label' => 'Saldo Tersisa', 'value' => 'Rp ' . number_format($data['total_wallet'], 0, ',', '.'), 'color' => 'blue'])
+                @include('dashboard._stat', ['label' => 'Transaksi High Risk', 'value' => $data['trx_high_risk'], 'color' => 'red'])
+            </div>
+        @endif
 
     </div>
 </x-app-layout>
