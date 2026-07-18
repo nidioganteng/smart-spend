@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BudgetPlan;
 use App\Models\Divisi;
+use App\Services\AuditLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -134,6 +135,12 @@ class BudgetPlanController extends Controller
 
         $budgetPlan->update(['status' => 'pending_finance']);
 
+        AuditLogService::log(
+            'bp_submitted',
+            "Budget Plan \"{$budgetPlan->title}\" diajukan ke Finance Staff.",
+            ['divisi_id' => $budgetPlan->divisi_id, 'budget_plan_id' => $budgetPlan->id]
+        );
+
         return redirect()->route('budget-plan.show', $budgetPlan)->with('success', 'Budget Plan berhasil diajukan ke Finance Staff.');
     }
 
@@ -154,6 +161,13 @@ class BudgetPlanController extends Controller
             'finance_reviewed_at'  => Carbon::now(),
             'finance_notes'        => $request->notes,
         ]);
+
+        AuditLogService::log(
+            'bp_finance_' . $request->action,
+            "Finance review BP \"{$budgetPlan->title}\": " . ($request->action === 'approve' ? 'diteruskan ke Pimpinan' : 'dikembalikan untuk revisi'),
+            ['divisi_id' => $budgetPlan->divisi_id, 'budget_plan_id' => $budgetPlan->id],
+            ['notes' => $request->notes]
+        );
 
         $message = $request->action === 'approve'
             ? 'Budget Plan disetujui, diteruskan ke Pimpinan.'
@@ -186,6 +200,13 @@ class BudgetPlanController extends Controller
                     ?? $budgetPlan->divisi->wallet()->create(['balance' => 0]);
                 $wallet->topUp((float) $budgetPlan->total_amount);
             }
+
+            AuditLogService::log(
+                'bp_leader_' . $request->action,
+                "Pimpinan " . ($request->action === 'approve' ? 'menyetujui' : 'menolak') . " BP \"{$budgetPlan->title}\"" . ($request->action === 'approve' ? " — dana Rp " . number_format($budgetPlan->total_amount, 0, ',', '.') . " dialokasikan." : '.'),
+                ['divisi_id' => $budgetPlan->divisi_id, 'budget_plan_id' => $budgetPlan->id],
+                ['notes' => $request->notes]
+            );
         });
 
         $message = $request->action === 'approve'

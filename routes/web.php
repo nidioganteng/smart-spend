@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\BudgetPlanController;
 use App\Http\Controllers\DivisiController;
 use App\Http\Controllers\ProfileController;
@@ -12,9 +13,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -41,6 +42,7 @@ Route::middleware(['auth', 'role:leader'])->group(function () {
 
 Route::middleware(['auth', 'role:admin,finance_staff,leader'])->group(function () {
     Route::get('wallet', [WalletController::class, 'index'])->name('wallet.index');
+    Route::get('audit-log', [AuditLogController::class, 'index'])->name('audit-log.index');
 });
 
 Route::middleware(['auth'])->group(function () {

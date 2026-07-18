@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Transaction;
+use App\Services\AuditLogService;
 use App\Services\TransactionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -59,6 +60,18 @@ class TransactionController extends Controller
             'system_notes'            => $result['system_notes'],
         ]);
 
+        AuditLogService::log(
+            'transaction_' . $result['status'],
+            "Transaksi {$result['status']}: {$result['description']} — Rp " . number_format($result['amount'], 0, ',', '.'),
+            [
+                'divisi_id'      => $result['divisi']?->id,
+                'vendor_id'      => $result['vendor']?->id,
+                'transaction_id' => $transaction->id,
+                'budget_plan_id' => $result['budget_plan']?->id,
+            ],
+            ['risk_score' => $result['risk_score'], 'risk_level' => $result['risk_level']]
+        );
+
         return redirect()->route('transaction.show', $transaction)
                          ->with('success', 'Transaksi diproses.');
     }
@@ -99,6 +112,13 @@ class TransactionController extends Controller
                 'reviewed_at'    => Carbon::now(),
                 'reviewer_notes' => $request->reviewer_notes,
             ]);
+
+            AuditLogService::log(
+                'transaction_review_' . $request->action,
+                "Review manual transaksi #{$transaction->id}: " . ($request->action === 'approve' ? 'disetujui' : 'ditolak'),
+                ['divisi_id' => $transaction->divisi_id, 'transaction_id' => $transaction->id],
+                ['reviewer_notes' => $request->reviewer_notes]
+            );
         });
 
         $message = $request->action === 'approve'
