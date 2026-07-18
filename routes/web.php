@@ -3,6 +3,7 @@
 use App\Http\Controllers\BudgetPlanController;
 use App\Http\Controllers\DivisiController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\WalletController;
 use Illuminate\Support\Facades\Route;
@@ -45,6 +46,23 @@ Route::middleware(['auth', 'role:admin,finance_staff,leader'])->group(function (
 Route::middleware(['auth'])->group(function () {
     Route::get('budget-plan', [BudgetPlanController::class, 'index'])->name('budget-plan.index');
     Route::get('budget-plan/{budgetPlan}', [BudgetPlanController::class, 'show'])->name('budget-plan.show');
+
+    Route::get('transaction', [TransactionController::class, 'index'])->name('transaction.index');
+});
+
+// Static routes harus didaftarkan SEBELUM route dengan parameter {transaction}
+Route::middleware(['auth', 'role:head_division'])->group(function () {
+    Route::get('transaction/create', [TransactionController::class, 'create'])->name('transaction.create');
+    Route::post('transaction', [TransactionController::class, 'store'])->name('transaction.store');
+});
+
+Route::middleware(['auth', 'role:finance_staff'])->group(function () {
+    Route::get('transaction/pending', [TransactionController::class, 'pending'])->name('transaction.pending');
+    Route::post('transaction/{transaction}/review', [TransactionController::class, 'review'])->name('transaction.review');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('transaction/{transaction}', [TransactionController::class, 'show'])->name('transaction.show');
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
