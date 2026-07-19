@@ -9,6 +9,30 @@ class TapController extends Controller
 {
     public function __construct(private \App\Services\TransactionService $service) {}
 
+    public function cardCheck(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate(['rfid_uid' => 'required|string']);
+
+        $divisi = \App\Models\Divisi::where('rfid_uid', $request->rfid_uid)
+            ->where('is_active', true)
+            ->with('wallet')
+            ->first();
+
+        if (!$divisi) {
+            return response()->json([
+                'valid'   => false,
+                'message' => 'Kartu tidak dikenali atau tidak aktif',
+            ], 404);
+        }
+
+        return response()->json([
+            'valid'          => true,
+            'divisi'         => $divisi->name,
+            'wallet_balance' => $divisi->wallet?->balance ?? 0,
+            'message'        => 'Kartu valid - ' . $divisi->name,
+        ]);
+    }
+
     public function tap(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
