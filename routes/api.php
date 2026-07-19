@@ -4,3 +4,4 @@ use App\Http\Controllers\Api\TapController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/tap', [TapController::class, 'tap']);
+Route::post('/card-check', [TapController::class, 'cardCheck']);
