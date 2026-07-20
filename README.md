@@ -40,7 +40,7 @@ Sistem terdiri dari tiga fase utama: **persiapan Budget Plan (BP)**, **validasi 
 - Halaman approval manual untuk transaksi Pending Approval / High Risk
 - Audit trail otomatis untuk setiap event transaksi
 - Dashboard monitoring realisasi anggaran secara real-time
-- Integrasi hardware ESP32 + RFID (RC522)
+- Integrasi hardware ESP32 + NFC Module PN532 (I2C)
 
 ## Tech Stack
 
@@ -49,14 +49,15 @@ Sistem terdiri dari tiga fase utama: **persiapan Budget Plan (BP)**, **validasi 
 | Backend & Frontend | Laravel (PHP) |
 | Styling | Tailwind CSS |
 | Database | MySQL |
-| Hardware | ESP32 + RFID Module (RC522) |
+| Hardware | ESP32 + NFC Module PN532 (I2C) |
+| Hardware IDE | PlatformIO (VSCode extension) |
 | Version Control | Git & GitHub |
 
 ## Alur Sistem
 
 ```
-Kartu RFID → tap ke RC522 → ESP32 baca UID
-    → kirim via WiFi (HTTP POST) → Backend Laravel
+Kartu NFC → tap ke PN532 → ESP32 baca UID
+    → kirim via WiFi (HTTP POST /api/card-check) → Backend Laravel
     → 5-layer validation + fraud risk scoring
     → simpan ke database
     → tampil di Dashboard
@@ -81,6 +82,12 @@ Pastikan sudah terpasang di komputer Anda:
 - Node.js & NPM
 - MySQL
 - Git
+
+Untuk pengembangan hardware (opsional):
+
+- VSCode dengan ekstensi PlatformIO IDE
+- Driver USB-to-Serial (CP210x atau CH340 tergantung board)
+- Hardware: ESP32 DevKit + NFC Module PN532
 
 ## Instalasi
 
@@ -149,20 +156,24 @@ Buka `http://127.0.0.1:8000` di browser.
 
 ```
 smart-spend/
-├── app/                # Model, Controller, Middleware, Logic bisnis
+├── app/                  # Model, Controller, Middleware, Logic bisnis
 ├── bootstrap/
 ├── config/
 ├── database/
-│   ├── migrations/     # Struktur tabel
-│   └── seeders/        # Data dummy untuk testing
+│   ├── migrations/       # Struktur tabel
+│   └── seeders/          # Data dummy untuk testing
+├── hardware/             # Project PlatformIO untuk ESP32
+│   ├── src/
+│   │   └── main.cpp      # Firmware ESP32 (WiFi + NFC + HTTP POST)
+│   └── platformio.ini    # Konfigurasi board & library
 ├── public/
 ├── resources/
-│   ├── css/            # Entry point Tailwind
+│   ├── css/              # Entry point Tailwind
 │   ├── js/
-│   └── views/          # Blade templates
+│   └── views/            # Blade templates
 ├── routes/
 │   ├── web.php
-│   └── api.php         # Endpoint untuk ESP32 (/api/tap)
+│   └── api.php           # Endpoint untuk ESP32 (/api/card-check, /api/tap)
 ├── storage/
 └── .env.example
 ```
